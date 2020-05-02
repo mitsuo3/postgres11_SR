@@ -19,7 +19,7 @@ docker run --privileged \
      -p 19187:9187 \
      -p 13000:3000 \
      -p 15432:5432 \
-     -v /Users/mitsuo3/repository/postgres/docker_work:/db/work \
+     -v /Users/mitsuo3/repository/docker_work:/db/work \
      --name manager \
      centos76_base \
      /sbin/init
