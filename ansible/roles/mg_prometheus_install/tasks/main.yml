@@ -1,0 +1,14 @@
+- hosts: manager
+  user: root
+  tasks:
+    - name: Download prometheus package 
+      file:
+        path: /usr/local/src/prometheus
+        state: directory
+        mode: 0755
+
+    - name: Download prometheus package 
+      get_url:
+        url: https://github.com/prometheus/prometheus/releases/download/v2.3.2/prometheus-2.3.2.linux-amd64.tar.gz
+        dest: /usr/local/src/prometheus/prometheus-2.3.2.linux-amd64.tar.gz
+        mode: '0664'
