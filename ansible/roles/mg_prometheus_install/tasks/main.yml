@@ -12,3 +12,9 @@
         url: https://github.com/prometheus/prometheus/releases/download/v2.3.2/prometheus-2.3.2.linux-amd64.tar.gz
         dest: /usr/local/src/prometheus/prometheus-2.3.2.linux-amd64.tar.gz
         mode: '0664'
+
+    - name: win arcfile unpack
+      unarchive:
+        src: /usr/local/src/prometheus/prometheus-2.3.2.linux-amd64.tar.gz
+        dest: /usr/local/src/prometheus/prometheus-server
+        
