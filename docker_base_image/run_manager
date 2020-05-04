@@ -11,6 +11,7 @@ docker run --privileged \
      -p 13000:3000 \
      -p 15432:5432 \
      -v /Users/mitsuo3/repository/docker_work:/db/work \
+     -v /Users/mitsuo3/repository/git/postgres11_SR/ansible:/ansible \
      --name manager \
      centos76_base \
      /sbin/init

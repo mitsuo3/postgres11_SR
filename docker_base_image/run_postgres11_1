@@ -1,0 +1,17 @@
+docker run --privileged \
+     -h postgres11_1 \
+     --net=user_defined_nw \
+     --ip=192.168.56.11 \
+     -d \
+     -p 20022:22 \
+     -p 20080:80 \
+     -p 29100:9100 \
+     -p 29090:9090 \
+     -p 29187:9187 \
+     -p 23000:3000 \
+     -p 25432:5432 \
+     -v /Users/mitsuo3/repository/docker_work:/db/work \
+     -v /Users/mitsuo3/repository/git/postgres11_SR/ansible:/ansible \
+     --name postgres11_1 \
+     centos76_base \
+     /sbin/init

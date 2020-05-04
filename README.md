@@ -24,3 +24,14 @@ docker run --privileged \
      centos76_base \
      /sbin/init
 ```
+
+
+## managerで実行すること
+```
+ssh-keygen
+ssh-copy-id 192.168.56.100
+# git clone https://github.com/mitsuo3/postgres11_SR.git
+# cd postgres11_SR/ansible
+ansible-playbook -vvv -i inventories/docker/hosts roles/mg_prometheus_install/tasks/main.yml
+```
+
