@@ -1,0 +1,10 @@
+#- name: manager 
+#  hosts: manager
+#  roles:
+#    - mg_prometheus_install
+
+- name: dbserver
+  hosts: dbservers
+  roles:
+    - db_postgres_install
+            

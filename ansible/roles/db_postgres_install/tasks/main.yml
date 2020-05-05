@@ -1,3 +1,46 @@
-- hosts: dbserver
-  user: root
-  tasks:
+- name: Ensure group "postgres" exists
+  group:
+    name: "{{ pg_group }}"
+    state: present
+
+- name: Add the user 'postgres' with a bash shell, appending the group 'postgres' to the user's groups
+  user:
+    name: "{{ pg_owner }}"
+    shell: /bin/bash
+    groups: "{{ pg_group }}"
+    append: yes
+
+- name: Unarchive prometheus that needs to be downloaded
+  unarchive:
+    src: https://ftp.postgresql.org/pub/source/v11.7/postgresql-11.7.tar.gz
+    dest: /usr/local/src
+    owner: "{{ pg_owner }}"
+    group: "{{ pg_group }}"
+    remote_src: yes
+
+- name: Install a list of packages
+  yum:
+    name:
+    - gcc
+    - readline
+    - readline-devel
+    - zlib
+    - zlib-devel
+    state: present
+
+- name: configure & make & make install
+  shell: cd /usr/local/src/postgres-11.7 && ./configure && ./make && make install
+
+
+
+
+- name: Make Directory for DB Cluster
+  file:
+    path: "{{ directory_pgdata }}"
+    state: directory
+    owner: "{{ pg_owner }}"
+    group: "{{ pg_group }}"
+    mode: '0755'
+
+
+    

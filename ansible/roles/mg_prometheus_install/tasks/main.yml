@@ -1,41 +1,37 @@
-- hosts: manager
-  user: root
-  tasks:
+# Install python package
+- name: Install the ius-release.rpm from a remote repo
+  yum:
+    name: https://centos7.iuscommunity.org/ius-release.rpm
+    state: present
 
-    # Install python package
-    - name: Install the ius-release.rpm from a remote repo
-      yum:
-        name: https://centos7.iuscommunity.org/ius-release.rpm
-        state: present
+- name: Install a list of packages
+  yum:
+    name:
+      - python36u
+      - python36u-libs
+      - python36u-devel
+      - python36u-pip
+    state: present
 
-    - name: Install a list of packages
-      yum:
-        name:
-          - python36u
-          - python36u-libs
-          - python36u-devel
-          - python36u-pip
-        state: present
+- name: Install a list of packages for Python 3.6
+  pip:
+    name:
+      - pip
+      - prometheus_client
+      - requests
+    executable: pip3.6
 
-    - name: Install a list of packages for Python 3.6
-      pip:
-        name:
-          - pip
-          - prometheus_client
-          - requests
-        executable: pip3.6
+- name: Ensure group "prometheus" exists
+  group:
+    name: prometheus
+    state: present
 
-    - name: Ensure group "prometheus" exists
-      group:
-        name: prometheus
-        state: present
-    
-    - name: Add the user 'prometheus' with a bash shell, appending the group 'prometheus' to the user's groups
-      user:
-        name: prometheus
-        shell: /bin/bash
-        groups: prometheus
-        append: yes
+- name: Add the user 'prometheus' with a bash shell, appending the group 'prometheus' to the user's groups
+  user:
+    name: prometheus
+    shell: /bin/bash
+    groups: prometheus
+    append: yes
 
 #--------------------------------------------------#
 # 各ファイルのダウンロード
@@ -43,47 +39,47 @@
 # - node_exporter
 # - pushgateway
 #--------------------------------------------------#
-    - name: Unarchive prometheus that needs to be downloaded
-      unarchive:
-        src: https://github.com/prometheus/prometheus/releases/download/v2.14.0/prometheus-2.14.0.linux-amd64.tar.gz
-        dest: /usr/local/src
-        owner: prometheus
-        group: prometheus
-        remote_src: yes
-    
-    - name: Unarchive node_exporter that needs to be downloaded
-      unarchive:
-        src: https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
-        dest: /usr/local/src
-        owner: prometheus
-        group: prometheus
-        remote_src: yes
+- name: Unarchive prometheus that needs to be downloaded
+  unarchive:
+    src: https://github.com/prometheus/prometheus/releases/download/v2.14.0/prometheus-2.14.0.linux-amd64.tar.gz
+    dest: /usr/local/src
+    owner: prometheus
+    group: prometheus
+    remote_src: yes
 
-    - name: Unarchive pushgateway that needs to be downloaded
-      unarchive:
-        src: https://github.com/prometheus/pushgateway/releases/download/v1.0.0/pushgateway-1.0.0.linux-amd64.tar.gz
-        dest: /usr/local/src
-        owner: prometheus
-        group: prometheus
-        remote_src: yes
+- name: Unarchive node_exporter that needs to be downloaded
+  unarchive:
+    src: https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
+    dest: /usr/local/src
+    owner: prometheus
+    group: prometheus
+    remote_src: yes
+
+- name: Unarchive pushgateway that needs to be downloaded
+  unarchive:
+    src: https://github.com/prometheus/pushgateway/releases/download/v1.0.0/pushgateway-1.0.0.linux-amd64.tar.gz
+    dest: /usr/local/src
+    owner: prometheus
+    group: prometheus
+    remote_src: yes
 
 #--------------------------------------------------#
 # grafanaのインストール
 #--------------------------------------------------#
-    - name: Install the Grafana rpm from a remote repo
-      yum:
-        name: https://dl.grafana.com/oss/release/grafana-6.5.1-1.x86_64.rpm
-        state: present
+- name: Install the Grafana rpm from a remote repo
+  yum:
+    name: https://dl.grafana.com/oss/release/grafana-6.5.1-1.x86_64.rpm
+    state: present
 #--------------------------------------------------#
 # モニタリングデータを配置用ディレクトリを作成
 #--------------------------------------------------#
-    - name: make directory /var/lib/prometheus
-      file:
-        path: /var/lib/prometheus
-        state: directory
-        owner: prometheus
-        group: prometheus
-        mode: '0755'
+- name: make directory /var/lib/prometheus
+  file:
+    path: /var/lib/prometheus
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
 
 #--------------------------------------------------#
 # シンボリックリンクの作成
@@ -91,176 +87,176 @@
 # - node_exporter
 # - pushgateway
 #--------------------------------------------------#
-    - name: Create prometheus symbolic link
-      file:
-        src: /usr/local/src/prometheus-2.14.0.linux-amd64/prometheus
-        dest: /usr/local/prometheus
-        state: link
+- name: Create prometheus symbolic link
+  file:
+    src: /usr/local/src/prometheus-2.14.0.linux-amd64/prometheus
+    dest: /usr/local/prometheus
+    state: link
 
-    - name: Create node_exporter symbolic link
-      file:
-        src: /usr/local/src/node_exporter-0.18.1.linux-amd64/node_exporter
-        dest: /usr/local/node_exporter
-        state: link
+- name: Create node_exporter symbolic link
+  file:
+    src: /usr/local/src/node_exporter-0.18.1.linux-amd64/node_exporter
+    dest: /usr/local/node_exporter
+    state: link
 
-    - name: Create pushgateway symbolic link
-      file:
-        src: /usr/local/src/pushgateway-1.0.0.linux-amd64/pushgateway
-        dest: /usr/local/pushgateway
-        state: link
+- name: Create pushgateway symbolic link
+  file:
+    src: /usr/local/src/pushgateway-1.0.0.linux-amd64/pushgateway
+    dest: /usr/local/pushgateway
+    state: link
 
 #--------------------------------------------------#
 # prometheus.yml の設定
 #--------------------------------------------------#
-    - name: Remove prometheus.yml
-      file:
-        path: /usr/local/src/prometheus-2.14.0.linux-amd64/prometheus.yml
-        state: absent
+- name: Remove prometheus.yml
+  file:
+    path: /usr/local/src/prometheus-2.14.0.linux-amd64/prometheus.yml
+    state: absent
 
-    - name: Insert/Update prometheus.yml in /usr/local/src/prometheus-2.14.0.linux-amd64/
-      blockinfile:
-        path: /usr/local/src/prometheus-2.14.0.linux-amd64/prometheus.yml
-        create: yes
-        owner: prometheus
-        group: prometheus
-        mode: '0755'
-        marker: ""
-        block: |
-            # my global config
-            global:
-                scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
-                evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
-            # scrape_timeout is set to the global default (10s).
+- name: Insert/Update prometheus.yml in /usr/local/src/prometheus-2.14.0.linux-amd64/
+  blockinfile:
+    path: /usr/local/src/prometheus-2.14.0.linux-amd64/prometheus.yml
+    create: yes
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+    marker: ""
+    block: |
+        # my global config
+        global:
+            scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+            evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+        # scrape_timeout is set to the global default (10s).
 
-            # Alertmanager configuration
-            alerting:
-                alertmanagers:
-                    - static_configs:
-                        - targets:
-                            # - alertmanager:9093
+        # Alertmanager configuration
+        alerting:
+            alertmanagers:
+                - static_configs:
+                    - targets:
+                        # - alertmanager:9093
 
-            # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
-            rule_files:
-                # - "first_rules.yml"
-                # - "second_rules.yml"
+        # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+        rule_files:
+            # - "first_rules.yml"
+            # - "second_rules.yml"
 
-            # A scrape configuration containing exactly one endpoint to scrape:
-            scrape_configs:
-            - job_name: prometheus
-              static_configs:
-                - targets:
-                    - 192.168.56.100:9090
+        # A scrape configuration containing exactly one endpoint to scrape:
+        scrape_configs:
+        - job_name: prometheus
+          static_configs:
+            - targets:
+                - 192.168.56.100:9090
 
-            - job_name: node_exporter
-              static_configs:
-                - targets:
-                    - 192.168.56.100:9100
-                    - 192.168.56.1:9100
-                    - 192.168.56.2:9100
-                    - 192.168.56.3:9100
+        - job_name: node_exporter
+          static_configs:
+            - targets:
+                - 192.168.56.100:9100
+                - 192.168.56.1:9100
+                - 192.168.56.2:9100
+                - 192.168.56.3:9100
 
-            - job_name: pushgateway
-              static_configs:
-                - targets:
-                    - 192.168.56.100:9091
+        - job_name: pushgateway
+          static_configs:
+            - targets:
+                - 192.168.56.100:9091
 
 #--------------------------------------------------#
 # prometheus.service の設定
 #--------------------------------------------------#
-    - name: Remove prometheus.service
-      file:
-        path: /etc/systemd/system/prometheus.service
-        state: absent
+- name: Remove prometheus.service
+  file:
+    path: /etc/systemd/system/prometheus.service
+    state: absent
 
-    - name: Insert/Update prometheus.service in /etc/systemd/system/
-      blockinfile:
-        path: /etc/systemd/system/prometheus.service
-        create: yes
-        marker: ""
-        mode: '0755'
-        block: |
-            [Unit]
-            Description=Prometheus - Monitoring system and time series database
-            Documentation=https://prometheus.io/docs/introduction/overview/
+- name: Insert/Update prometheus.service in /etc/systemd/system/
+  blockinfile:
+    path: /etc/systemd/system/prometheus.service
+    create: yes
+    marker: ""
+    mode: '0755'
+    block: |
+        [Unit]
+        Description=Prometheus - Monitoring system and time series database
+        Documentation=https://prometheus.io/docs/introduction/overview/
 
-            [Service]
-            Restart=always
-            User=prometheus
-            Type=simple
-            ExecStart=/usr/local/src/prometheus-2.14.0.linux-amd64/prometheus \
-            --config.file=/usr/local/src/prometheus-2.14.0.linux-amd64/prometheus.yml \
-            --storage.tsdb.path=/var/lib/prometheus/data
-            ExecReload=/bin/kill -HUP $MAINPID
-            TimeoutStopSec=20s
-            SendSIGKILL=no
+        [Service]
+        Restart=always
+        User=prometheus
+        Type=simple
+        ExecStart=/usr/local/src/prometheus-2.14.0.linux-amd64/prometheus \
+        --config.file=/usr/local/src/prometheus-2.14.0.linux-amd64/prometheus.yml \
+        --storage.tsdb.path=/var/lib/prometheus/data
+        ExecReload=/bin/kill -HUP $MAINPID
+        TimeoutStopSec=20s
+        SendSIGKILL=no
 
-            [Install]
-            WantedBy=multi-user.target
+        [Install]
+        WantedBy=multi-user.target
 
 #--------------------------------------------------#
 # node_exporter.service の設定
 #--------------------------------------------------#
-    - name: Remove node_exporter.service
-      file:
-        path: /etc/systemd/system/node_exporter.service
-        state: absent
+- name: Remove node_exporter.service
+  file:
+    path: /etc/systemd/system/node_exporter.service
+    state: absent
 
-    - name: Insert/Update node_exporter.service in /etc/systemd/system/
-      blockinfile:
-        path: /etc/systemd/system/node_exporter.service
-        create: yes
-        marker: ""
-        mode: '0755'
-        block: |
-            [Unit]
-            Description=node_exporter for Prometheus
+- name: Insert/Update node_exporter.service in /etc/systemd/system/
+  blockinfile:
+    path: /etc/systemd/system/node_exporter.service
+    create: yes
+    marker: ""
+    mode: '0755'
+    block: |
+        [Unit]
+        Description=node_exporter for Prometheus
 
-            [Service]
-            Restart=always
-            User=prometheus
-            ExecStart=/usr/local/node_exporter
-            ExecReload=/bin/kill -HUP $MAINPID
-            TimeoutStopSec=20s
-            SendSIGKILL=no
+        [Service]
+        Restart=always
+        User=prometheus
+        ExecStart=/usr/local/node_exporter
+        ExecReload=/bin/kill -HUP $MAINPID
+        TimeoutStopSec=20s
+        SendSIGKILL=no
 
-            [Install]
-            WantedBy=multi-user.target
+        [Install]
+        WantedBy=multi-user.target
 
 #--------------------------------------------------#
 # pushgateway.service の設定
 #--------------------------------------------------#
-    - name: Remove pushgateway.service
-      file:
-        path: /etc/systemd/system/pushgateway.service
-        state: absent
+- name: Remove pushgateway.service
+  file:
+    path: /etc/systemd/system/pushgateway.service
+    state: absent
 
-    - name: Insert/Update pushgateway.service in /etc/systemd/system/
-      blockinfile:
-        path: /etc/systemd/system/pushgateway.service
-        create: yes
-        marker: ""
-        mode: '0755'
-        block: |
-            [Unit]
-            Description=pushgateway for Prometheus
+- name: Insert/Update pushgateway.service in /etc/systemd/system/
+  blockinfile:
+    path: /etc/systemd/system/pushgateway.service
+    create: yes
+    marker: ""
+    mode: '0755'
+    block: |
+        [Unit]
+        Description=pushgateway for Prometheus
 
-            [Service]
-            Restart=always
-            User=prometheus
-            ExecStart=/usr/local/pushgateway
-            ExecReload=/bin/kill -HUP $MAINPID
-            TimeoutStopSec=20s
-            SendSIGKILL=no
+        [Service]
+        Restart=always
+        User=prometheus
+        ExecStart=/usr/local/pushgateway
+        ExecReload=/bin/kill -HUP $MAINPID
+        TimeoutStopSec=20s
+        SendSIGKILL=no
 
-            [Install]
-            WantedBy=multi-user.target
+        [Install]
+        WantedBy=multi-user.target
 
 #--------------------------------------------------#
 # systemctl daemon-reload の実行
 #--------------------------------------------------#
-    - name: just force systemd to reread configs
-      systemd:
-        daemon_reload: yes
+- name: just force systemd to reread configs
+  systemd:
+    daemon_reload: yes
 
 #--------------------------------------------------#
 # 各サービスの自動起動設定の有効化とサービスの起動
@@ -269,27 +265,27 @@
 # - pushgateway.service
 # - grafana-server.service
 #--------------------------------------------------#
-    - name: Systemctl enabled prometheus & systemctl start prometheus
-      systemd:
-        name: prometheus
-        state: started
-        enabled: yes
+- name: Systemctl enabled prometheus & systemctl start prometheus
+  systemd:
+    name: prometheus
+    state: started
+    enabled: yes
 
-    - name: Systemctl enabled node_exporter & systemctl start node_exporter
-      systemd:
-        name: node_exporter
-        state: started
-        enabled: yes
+- name: Systemctl enabled node_exporter & systemctl start node_exporter
+  systemd:
+    name: node_exporter
+    state: started
+    enabled: yes
 
-    - name: Systemctl enabled pushgateway & systemctl start pushgateway
-      systemd:
-        name: pushgateway
-        state: started
-        enabled: yes
+- name: Systemctl enabled pushgateway & systemctl start pushgateway
+  systemd:
+    name: pushgateway
+    state: started
+    enabled: yes
 
-    - name: Systemctl enabled grafana-server & systemctl start grafana-server
-      systemd:
-        name: grafana-server
-        state: started
-        enabled: yes
+- name: Systemctl enabled grafana-server & systemctl start grafana-server
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: yes
 
