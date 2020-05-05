@@ -28,11 +28,14 @@
     - zlib-devel
     state: present
 
+- name: postgres install check
+  shell: ls -l /usr/local/pgsql/bin
+  register: result
+  failed_when: result.rc not in [0, 1, 2]
+
 - name: configure & make & make install
-  shell: cd /usr/local/src/postgres-11.7 && ./configure && ./make && make install
-
-
-
+  shell: cd /usr/local/src/postgresql-11.7 && ./configure && make && make install
+  when: result.rc == 2
 
 - name: Make Directory for DB Cluster
   file:
@@ -40,7 +43,17 @@
     state: directory
     owner: "{{ pg_owner }}"
     group: "{{ pg_group }}"
-    mode: '0755'
+    mode: '0755'    
 
+- name: Insert/Update pushgateway.service in /etc/systemd/system/
+  blockinfile:
+    path: /home/postgres/.bash_profile
+    create: yes
+    marker: ""
+    mode: '0644'
+    block: |
+        export PATH=/usr/local/pgsql/bin:$PATH
+        export PGDATA=/db/pgdata
 
-    
+- name: initdb
+  shell: su - postgres -c initdb

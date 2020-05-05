@@ -1,0 +1,4 @@
+docker stop postgres11_1
+docker rm postgres11_1
+~/repository/git/postgres11_SR/docker_base_image/run_postgres11_1
+docker exec -it manager ssh-keygen -R 192.168.56.11

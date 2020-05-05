@@ -35,3 +35,12 @@ ssh-copy-id 192.168.56.100
 ansible-playbook -vvv -i inventories/docker/hosts roles/mg_prometheus_install/tasks/main.yml
 ```
 
+
+
+
+
+
+
+
+
+
