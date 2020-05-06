@@ -7,4 +7,6 @@
   hosts: dbservers
   roles:
     - db_postgres_install
-            
+    - db_postgres_setting
+    - db_node-exporter_install
+    - db_postgres-exporter_install

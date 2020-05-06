@@ -1,0 +1,64 @@
+- name: Ensure group "prometheus" exists
+  group:
+    name: prometheus
+    state: present
+    
+- name: Add the user 'prometheus' with a bash shell, appending the group 'prometheus' to the user's groups
+  user:
+    name: prometheus
+    shell: /bin/bash
+    groups: prometheus
+    append: yes
+
+- name: Unarchive node_exporter that needs to be downloaded
+  unarchive:
+    src: https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
+    dest: /usr/local/src
+    owner: prometheus
+    group: prometheus
+    remote_src: yes
+
+- name: Create node_exporter symbolic link
+  file:
+    src: /usr/local/src/node_exporter-0.18.1.linux-amd64/node_exporter
+    dest: /usr/local/node_exporter
+    state: link
+
+#--------------------------------------------------#
+# node_exporter.service の設定
+#--------------------------------------------------#
+- name: Remove node_exporter.service
+  file:
+    path: /etc/systemd/system/node_exporter.service
+    state: absent
+
+- name: Insert/Update node_exporter.service in /etc/systemd/system/
+  blockinfile:
+    path: /etc/systemd/system/node_exporter.service
+    create: yes
+    marker: ""
+    mode: '0755'
+    block: |
+        [Unit]
+        Description=node_exporter for Prometheus
+
+        [Service]
+        Restart=always
+        User=prometheus
+        ExecStart=/usr/local/node_exporter
+        ExecReload=/bin/kill -HUP $MAINPID
+        TimeoutStopSec=20s
+        SendSIGKILL=no
+
+        [Install]
+        WantedBy=multi-user.target
+
+- name: just force systemd to reread configs
+  systemd:
+    daemon_reload: yes
+
+- name: Systemctl enabled node_exporter & systemctl start node_exporter
+  systemd:
+    name: node_exporter
+    state: started
+    enabled: yes

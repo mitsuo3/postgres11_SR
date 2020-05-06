@@ -1,0 +1,52 @@
+- name: Unarchive node_exporter that needs to be downloaded
+  unarchive:
+    src: https://github.com/wrouesnel/postgres_exporter/releases/download/v0.8.0/postgres_exporter_v0.8.0_linux-amd64.tar.gz
+    dest: /usr/local/src
+    owner: "{{ pg_owner }}"
+    group: "{{ pg_group }}"
+    remote_src: yes
+
+- name: Create node_exporter symbolic link
+  file:
+    src: /usr/local/src/postgres_exporter_v0.8.0_linux-amd64/postgres_exporter
+    dest: /usr/local/postgres_exporter
+    state: link
+
+#--------------------------------------------------#
+# postgres_exporter.service の設定
+#--------------------------------------------------#
+- name: Remove postgres_exporter.service
+  file:
+    path: /etc/systemd/system/postgres_exporter.service
+    state: absent
+
+- name: Insert/Update postgres_exporter.service in /etc/systemd/system/
+  blockinfile:
+    path: /etc/systemd/system/postgres_exporter.service
+    create: yes
+    marker: ""
+    mode: '0755'
+    block: |
+        [Unit]
+        Description=postgres_exporter for Prometheus
+
+        [Service]
+        Restart=always
+        User="{{ pg_owner }}"
+        ExecStart=/usr/local/postgres_exporter
+        ExecReload=/bin/kill -HUP $MAINPID
+        TimeoutStopSec=20s
+        SendSIGKILL=no
+
+        [Install]
+        WantedBy=multi-user.target
+
+- name: just force systemd to reread configs
+  systemd:
+    daemon_reload: yes
+
+- name: Systemctl enabled postgres_exporter & systemctl start node_exporter
+  systemd:
+    name: postgres_exporter
+    state: started
+    enabled: yes

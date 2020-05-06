@@ -43,7 +43,7 @@
     state: directory
     owner: "{{ pg_owner }}"
     group: "{{ pg_group }}"
-    mode: '0755'    
+    mode: '0700'    
 
 - name: Insert/Update pushgateway.service in /etc/systemd/system/
   blockinfile:
@@ -54,6 +54,4 @@
     block: |
         export PATH=/usr/local/pgsql/bin:$PATH
         export PGDATA=/db/pgdata
-
-- name: initdb
-  shell: su - postgres -c initdb
+        export DATA_SOURCE_NAME='port=5432 sslmode=disable'
