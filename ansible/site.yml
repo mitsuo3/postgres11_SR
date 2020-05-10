@@ -3,10 +3,15 @@
 #  roles:
 #    - mg_prometheus_install
 
-- name: dbserver
+- name: dbserver common settings
   hosts: dbservers
   roles:
     - db_postgres_install
-    - db_postgres_setting
     - db_node-exporter_install
+
+- name: Create postgres database
+  hosts: master
+  roles:
+    - db_postgres_setting
     - db_postgres-exporter_install
+

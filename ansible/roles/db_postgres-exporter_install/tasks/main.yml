@@ -32,7 +32,7 @@
 
         [Service]
         Restart=always
-        User="{{ pg_owner }}"
+        User={{ pg_owner }}
         ExecStart=/usr/local/postgres_exporter
         ExecReload=/bin/kill -HUP $MAINPID
         TimeoutStopSec=20s

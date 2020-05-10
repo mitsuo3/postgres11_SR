@@ -1,6 +1,16 @@
 [manager]
 192.168.56.100
 
-[dbservers]
+[master]
 192.168.56.11
-#192.168.56.12
+
+[slave1]
+192.168.56.12
+
+[slave2]
+192.168.56.13
+
+[dbservers:children]
+master
+slave1
+#slave2
