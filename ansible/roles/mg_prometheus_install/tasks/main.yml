@@ -161,8 +161,8 @@
                 - 192.168.56.100:9091
 
         - job_name: postgres_exporter
-        static_configs:
-          - targets:
+          static_configs:
+            - targets:
               - 192.168.56.11:9187
               - 192.168.56.12:9187
               - 192.168.56.13:9187
