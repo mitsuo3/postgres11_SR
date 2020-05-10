@@ -7,12 +7,21 @@
   shell: su - postgres -c initdb
   when: result.rc == 2
 
+- name: Copy postgres config
+  copy:
+    src: templates/postgresql.conf
+    dest: /db/pgdata/postgresql.conf
+    owner: postgres
+    group: postgres
+    mode: 0644
+    backup: yes
+
 - name: postgres process check
-  shell: ps -ef | grep 'postgres:'
-  register: result
-  failed_when: result.rc not in [0, 1]
+  shell: ps -ef | grep 'postgres:' | grep -v grep
+  register: result_2
+  failed_when: result_2.rc not in [0, 1]
 
 - name: postgres start
   shell: su - postgres -c 'pg_ctl start'
-  when: result.rc == 0
+  when: result_2.rc != 0
 

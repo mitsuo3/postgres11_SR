@@ -43,15 +43,52 @@
     state: directory
     owner: "{{ pg_owner }}"
     group: "{{ pg_group }}"
-    mode: '0700'    
+    mode: '0700' 
 
-- name: Insert/Update pushgateway.service in /etc/systemd/system/
-  blockinfile:
-    path: /home/postgres/.bash_profile
-    create: yes
-    marker: ""
-    mode: '0644'
-    block: |
-        export PATH=/usr/local/pgsql/bin:$PATH
-        export PGDATA=/db/pgdata
-        export DATA_SOURCE_NAME='port=5432 sslmode=disable'
+- name: Copy bash_profile
+  copy:
+    src: templates/postgres_bash_profile
+    dest: /home/postgres/.bash_profile
+    owner: postgres
+    group: postgres
+    mode: 0644
+    backup: yes
+
+
+- name: Copy pg_statsinfo-11.0-1.pg11.rhel7.x86_64.rpm
+  copy:
+    src: templates/pg_statsinfo-11.0-1.pg11.rhel7.x86_64.rpm
+    dest: /home/postgres/pg_statsinfo-11.0-1.pg11.rhel7.x86_64.rpm
+    owner: postgres
+    group: postgres
+    mode: 0644
+    backup: yes
+
+- name: install nginx rpm from a local file
+  yum: 
+    name: /home/postgres/pg_statsinfo-11.0-1.pg11.rhel7.x86_64.rpm
+    state: present
+  
+- name: Copy pg_statsinfo-11.0-1.pg11.rhel7.x86_64.rpm
+  copy:
+    src: templates/pg_stats_reporter-11.0-1.el7.noarch.rpm
+    dest: /home/postgres/pg_stats_reporter-11.0-1.el7.noarch.rpm
+    owner: postgres
+    group: postgres
+    mode: 0644
+    backup: yes
+
+- name: install nginx rpm from a local file
+  yum: 
+    name: /home/postgres/pg_stats_reporter-11.0-1.el7.noarch.rpm
+    state: present
+  
+
+- name: Copy pg_stat_reporter config
+  copy:
+    src: templates/pg_stats_reporter.ini
+    dest: /etc/pg_stats_reporter.ini
+    owner: postgres
+    group: postgres
+    mode: 0644
+    backup: yes

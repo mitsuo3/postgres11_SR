@@ -1,0 +1,14 @@
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+
+export PATH=/usr/local/pgsql/bin:$PATH
+export PGDATA=/db/pgdata
+export DATA_SOURCE_NAME='port=5432 sslmode=disable'
