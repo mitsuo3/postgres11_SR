@@ -1,6 +1,11 @@
 - name: synchronous_standby_names setting
-  shell: su - postgres -c 'psql -c 'alter system set synchronous_standby_names = 'node2,node3'' ;
+  become: yes   
+  become_method: su
+  become_user: postgres
+  shell: /usr/local/pgsql/bin/psql -c 'alter system set synchronous_standby_names = 'node2,node3'' ;
 
 - name: postgres reload
-  shell: su - postgres -c 'alter system set synchronous_standby_names = 'node2,node3' ;
-
+  become: yes   
+  become_method: su
+  become_user: postgres
+  shell: /usr/local/pgsql/bin/pg_ctl -D /db/pgdata reload
