@@ -1,5 +1,5 @@
 docker run --privileged \
-     -h postgres11_1 \
+     -h postgres11_2 \
      --net=user_defined_nw \
      --ip=192.168.56.12 \
      -d \

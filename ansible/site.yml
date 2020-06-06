@@ -7,11 +7,25 @@
   hosts: dbservers
   roles:
     - db_postgres_install
-    - db_node-exporter_install
 
-- name: Create postgres database
+- name: Create postgres database (master)
   hosts: master
   roles:
     - db_postgres_setting
+
+- name: Create postgres database (slave)
+  hosts: slave1
+  roles:
+    - db_postgres_slave
+  
+- name: Setting Sync mode
+  hosts: master
+  roles:
+    - db_postgres_syncsetting
+  
+- name: dbserver additional settings
+  hosts: dbservers
+  roles:
+    - db_node-exporter_install
     - db_postgres-exporter_install
 

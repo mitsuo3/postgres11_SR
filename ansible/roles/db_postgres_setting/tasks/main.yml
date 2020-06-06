@@ -7,10 +7,19 @@
   shell: su - postgres -c initdb
   when: result.rc == 2
 
-- name: Copy postgres config
+- name: Copy postgresql.conf
   copy:
     src: templates/postgresql.conf
     dest: /db/pgdata/postgresql.conf
+    owner: postgres
+    group: postgres
+    mode: 0644
+    backup: yes
+
+- name: Copy pg_hba.conf
+  copy:
+    src: templates/pg_hba.conf
+    dest: /db/pgdata/pg_hba.conf
     owner: postgres
     group: postgres
     mode: 0644

@@ -1,0 +1,23 @@
+- name: create slave database cluster
+  shell: pg_basebackup -h 192.168.56.11 -D /db/pgdata -R --progress -U postgres
+  register: result
+  failed_when: result.rc not in [0, 1, 2]
+
+- name: Copy recovery.conf
+  copy:
+    src: templates/recovery.conf.j2
+    dest: /db/pgdata/recovery.conf
+    owner: postgres
+    group: postgres
+    mode: 0644
+    backup: yes
+
+- name: postgres process check
+  shell: ps -ef | grep 'postgres:' | grep -v grep
+  register: result_2
+  failed_when: result_2.rc not in [0, 1]
+
+- name: postgres start
+  shell: su - postgres -c 'pg_ctl start'
+  when: result_2.rc != 0
+  
