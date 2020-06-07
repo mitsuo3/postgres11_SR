@@ -18,6 +18,7 @@
   roles:
 #    - db_postgres_slave
   
+
 - name: Setting Sync mode
   hosts: master
   roles:
