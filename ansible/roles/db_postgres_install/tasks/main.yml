@@ -21,12 +21,13 @@
 - name: Install a list of packages
   yum:
     name:
-    - gcc
-    - readline
-    - readline-devel
-    - zlib
-    - zlib-devel
-    state: present
+      - "{{ item }}"
+    with_items:
+      - gcc
+      - readline
+      - readline-devel
+      - zlib
+      - zlib-devel
 
 - name: postgres install check
   shell: ls -l /usr/local/pgsql/bin
@@ -34,7 +35,7 @@
   failed_when: result.rc not in [0, 1, 2]
 
 - name: configure & make & make install
-  shell: cd /usr/local/src/postgresql-11.7 && ./configure && make && make install
+  shell: cd /usr/local/src/postgresql-11.7 && ./configure --with-libxml && make && make install
   when: result.rc == 2
 
 - name: Make Directory for DB Cluster
@@ -49,8 +50,8 @@
   copy:
     src: templates/postgres_bash_profile
     dest: /home/postgres/.bash_profile
-    owner: postgres
-    group: postgres
+    owner: "{{ pg_owner }}"
+    group: "{{ pg_group }}"
     mode: 0644
     backup: yes
 
@@ -59,8 +60,8 @@
   copy:
     src: templates/pg_statsinfo-11.0-1.pg11.rhel7.x86_64.rpm
     dest: /home/postgres/pg_statsinfo-11.0-1.pg11.rhel7.x86_64.rpm
-    owner: postgres
-    group: postgres
+    owner: "{{ pg_owner }}"
+    group: "{{ pg_group }}"
     mode: 0644
     backup: yes
 
@@ -73,8 +74,8 @@
   copy:
     src: templates/pg_stats_reporter-11.0-1.el7.noarch.rpm
     dest: /home/postgres/pg_stats_reporter-11.0-1.el7.noarch.rpm
-    owner: postgres
-    group: postgres
+    owner: "{{ pg_owner }}"
+    group: "{{ pg_group }}"
     mode: 0644
     backup: yes
 
@@ -88,7 +89,7 @@
   copy:
     src: templates/pg_stats_reporter.ini
     dest: /etc/pg_stats_reporter.ini
-    owner: postgres
-    group: postgres
+    owner: "{{ pg_owner }}"
+    group: "{{ pg_group }}"
     mode: 0644
     backup: yes
