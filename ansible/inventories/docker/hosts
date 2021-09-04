@@ -5,12 +5,18 @@
 192.168.56.11
 
 [slave1]
-192.168.56.12
+#192.168.56.12
 
 [slave2]
-192.168.56.13
+#192.168.56.13
 
 [dbservers:children]
+master
+slave1
+#slave2
+
+[allservers:children]
+manager
 master
 slave1
 #slave2
