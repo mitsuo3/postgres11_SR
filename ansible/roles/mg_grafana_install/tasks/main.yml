@@ -1,0 +1,44 @@
+- name: copy grafana rpm file
+  copy: 
+    src: files/grafana-enterprise-8.1.2-1.x86_64.rpm
+    dest: /tmp/
+
+- name: install grafana 
+  yum: 
+    name: /tmp/grafana-enterprise-8.1.2-1.x86_64.rpm
+    state: present
+
+- name: delete grafana rpm file
+  file: 
+    path: /tmp/grafana-enterprise-8.1.2-1.x86_64.rpm
+    state: absent
+
+- name: copy grafana setting datasource file
+  copy: 
+    src: files/prometheus.yml
+    dest: /etc/grafana/provisioning/datasources/
+
+- name: copy grafana setting dashboard file
+  copy: 
+    src: files/dummy.yml
+    dest: /etc/grafana/provisioning/dashboards/
+
+- name: create dashboard directory
+  file: 
+    name: /var/lib/grafana/dashboards
+    state: directory
+
+- name: copy grafana dashboard file
+  copy: 
+    src: files/node-exporter-full_rev23.json
+    dest: /var/lib/grafana/dashboards/
+
+- name: just force systemd to reread configs
+  systemd:
+    daemon_reload: yes
+
+- name: Systemctl enabled prometheus & systemctl start prometheus
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: yes

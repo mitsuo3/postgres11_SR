@@ -1,9 +1,9 @@
-- name: Ensure group "prometheus" exists
+- name: create "prometheus" group
   group:
     name: prometheus
     state: present
 
-- name: Add the user 'prometheus' with a bash shell, appending the group 'prometheus' to the user's groups
+- name: create "prometheus" user
   user:
     name: prometheus
     shell: /bin/bash
@@ -16,11 +16,6 @@
     dest: /usr/local/src
     owner: prometheus
     group: prometheus
-
-- name: Install the Grafana rpm from a remote repo
-  yum:
-    name: https://dl.grafana.com/oss/release/grafana-6.5.1-1.x86_64.rpm
-    state: present
 
 - name: make directory /var/lib/prometheus
   file:
@@ -95,9 +90,6 @@
               - 192.168.56.12:9187
               - 192.168.56.13:9187
       
-#--------------------------------------------------#
-# prometheus.service の設定
-#--------------------------------------------------#
 - name: Remove prometheus.service
   file:
     path: /etc/systemd/system/prometheus.service
@@ -128,20 +120,10 @@
         [Install]
         WantedBy=multi-user.target
 
-#--------------------------------------------------#
-# systemctl daemon-reload の実行
-#--------------------------------------------------#
 - name: just force systemd to reread configs
   systemd:
     daemon_reload: yes
 
-#--------------------------------------------------#
-# 各サービスの自動起動設定の有効化とサービスの起動
-# - prometheus.service
-# - node_exporter.service
-# - pushgateway.service
-# - grafana-server.service
-#--------------------------------------------------#
 - name: Systemctl enabled prometheus & systemctl start prometheus
   systemd:
     name: prometheus

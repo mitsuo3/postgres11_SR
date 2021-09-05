@@ -2,16 +2,17 @@
   hosts: manager
   roles:
     - mg_prometheus_install
-
-- name: dbserver common settings
-  hosts: dbservers
-  roles:
-#    - db_postgres_install
+    - mg_grafana_install    
 
 - name: allserver node_exporter install
   hosts: allservers
   roles:
     - cm_node-exporter_install 
+
+- name: dbserver common settings
+  hosts: dbservers
+  roles:
+#    - db_postgres_install
 
 - name: Create postgres database (master)
   hosts: master

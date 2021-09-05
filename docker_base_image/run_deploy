@@ -1,0 +1,11 @@
+docker run --privileged \
+     -h deploy \
+     --net=user_defined_nw \
+     --ip=192.168.56.200 \
+     -d \
+     -v /Users/mitsuo3/repository/docker_work:/db/work \
+     -v /Users/mitsuo3/repository:/repository \
+     --name deploy \
+     centos76_base \
+     /sbin/init
+     
